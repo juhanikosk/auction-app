@@ -1,3 +1,18 @@
 .header-title {
-    text-shadow: 1px 1px black;
+    text-shadow: 1px 1px #5a5a5a;
+    cursor: default;
+}
+
+.scroll-items {
+    overflow-y: auto;
+    height: 350px;
+}
+
+.img-parent {
+    width: auto;
+    height: auto;
+}
+
+.news-title {
+    word-wrap: break-word;
 }

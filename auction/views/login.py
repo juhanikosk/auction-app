@@ -40,12 +40,17 @@ class CreateUserView(View):
         return render(request, "login/create_user.html")
 
     def post(self, request, *args, **kwargs):
+        email = request.POST.get('email')
         username = request.POST.get('username')
         password = request.POST.get("password")
         context = {}
 
         try:
-            User.objects.create_user(username=username, password=password)
+            User.objects.create_user(
+                email=email,
+                username=username,
+                password=password
+            )
         except:
             context['message'] = {
                 'type': 'danger',
@@ -56,3 +61,7 @@ class CreateUserView(View):
 
         messages.success(request, 'User created.')
         return HttpResponseRedirect(reverse('login'))
+
+def logout_user(request, *args, **kwargs):
+    logout(request)
+    return HttpResponseRedirect(reverse('login'))

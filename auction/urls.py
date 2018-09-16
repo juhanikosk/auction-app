@@ -13,13 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib import admin
 from django.urls import path
 
-from auction.views.login import CreateUserView, LoginView
-from auction.views.auctions import IndexView
+from auction.views.login import CreateUserView, LoginView, logout_user
+from auction.views.auctions import CreateAuctionView, IndexView
 
 
 def login_wrap(view_class, template=None):
@@ -29,6 +31,8 @@ def login_wrap(view_class, template=None):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', LoginView.as_view(), name="login"),
+    path('logout/', logout_user, name="logout"),
     path('login/create-user/', CreateUserView.as_view(), name="create-user"),
-    path('', login_wrap(IndexView), name="main-page")
-]
+    path('', login_wrap(IndexView), name="main-page"),
+    path('create-auction/', login_wrap(CreateAuctionView), name="create-auction")
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

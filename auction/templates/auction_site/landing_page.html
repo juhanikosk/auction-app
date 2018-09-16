@@ -1,0 +1,68 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block main_content %}
+    <div class="row mx-sm-1 mt-2">
+        <div class="col-12 col-sm-6 px-0">
+            <div class="row bg-white rounded mx-1 mb-2 p-2">
+                <div class="col-12">
+                    <h4 class="p-2 header-title text-primary">
+                        <i class="fas fa-newspaper mr-2"></i>
+                        News
+                    </h4>
+                </div>
+                <div class="col-12">
+                    {% if news %}
+                        <ul class="list-group mb-2 scroll-items">
+                            {% for news_item in news %}
+                                <li class="list-group-item">
+                                    <div class="img-parent float-right">
+                                        <img class="rounded-circle p-0 image-retain"
+                                             src="{% static 'img/news.png' %}" width="100px" height="100px">
+                                    </div>
+                                    <div class="news-title col-7 col-sm-5 col-md-6 col-lg-8 float-left px-0 py-1 float-left">
+                                        <a class="h5" href="#">{{ news_item.title }}</a>
+                                        <p class="mb-0 pr-4">{{ news_item.description }}</p>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No news found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 px-0">
+            <div class="row bg-white rounded mx-1 mb-2 p-2">
+                <div class="col-12">
+                    <h4 class="p-2 header-title text-primary">
+                        <i class="fas fa-gavel mr-2"></i>
+                        Auctions
+                    </h4>
+                </div>
+                <div class="col-12">
+                    {% if items %}
+                        <ul class="list-group mb-2 scroll-items">
+                            {% for item in items %}
+                                <li class="list-group-item">
+                                    <div class="img-parent float-right">
+                                        <img class="rounded-circle p-0 image-retain"
+                                            src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'img/lataus.png' %}{% endif %}"
+                                            width="100px" height="100px">
+                                    </div>
+                                    <div class="col-7 col-sm-5 col-md-6 col-lg-8 float-left px-0 py-1 float-left">
+                                        <a class="h5" href="#">{{ item.name }}</a>
+                                        <p class="mb-0">{{ item.price }}€</p>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="list-group mb-2 scroll-items">No auctions found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}

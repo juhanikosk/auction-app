@@ -1,0 +1,23 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <a class="navbar-brand text-white header-title" href="/">AuctionApp</a>
+    {% if request.user.is_authenticated %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="navbar-item">
+                    <a href="{% url 'main-page' %}" class="nav-link"><i class="m-2 fas fa-home"></i>Main page</a>
+                </li>
+                <li class="navbar-item float-right">
+                    <a href="{% url 'create-auction' %}" class="nav-link"><i class="m-2 fas fa-plus-square"></i>Create auction</a>
+                </li>
+            </ul>
+            <div class="my-2 my-lg-0">
+                <a href="#" class="btn btn-info my-2 mr-2 mr-lg-3 my-lg-0 my-sm-0">Profile</a>
+                <a href="{% url 'logout' %}" class="btn btn-danger my-2 my-lg-0 my-sm-0">Logout</a>
+            </div>
+        </div>
+    {% endif %}
+</nav>
