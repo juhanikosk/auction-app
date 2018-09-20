@@ -45,7 +45,8 @@
                     {% if items %}
                         <ul class="list-group mb-2 scroll-items">
                             {% for item in items %}
-                                <li class="list-group-item">
+                                <li class="list-group-item link-element-wrapper">
+                                    <a class="link-element" href="{% url 'auction-details' item.pk %}"></a>
                                     <div class="img-parent float-right">
                                         <img class="rounded-circle p-0 image-retain"
                                             src="{% if item.image %}{{ item.image.url }}{% else %}{% static 'img/lataus.png' %}{% endif %}"

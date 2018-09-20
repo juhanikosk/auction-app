@@ -1,2 +1,3 @@
 from auction.admin.item import *
 from auction.admin.news import *
+from auction.admin.bids import *
