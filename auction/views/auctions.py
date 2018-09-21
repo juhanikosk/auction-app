@@ -19,7 +19,7 @@ class IndexView(View):
 
 class CreateAuctionView(CreateView):
     model = Item
-    fields = ['name', 'price', 'image']
+    fields = ['name', 'description', 'price', 'image']
     template_name = "auction_site/create_auction.html"
 
 

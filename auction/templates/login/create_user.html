@@ -30,6 +30,15 @@
                     </form>
                 </div>
             </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="row">
+                        <div class="col-12 col-sm-8 col-lg-4">
+                            <p class="bg-{{ message.tags }} p-3 rounded text-white">{{ message }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
             {% if message %}
                 <div class="row">
                     <div class="col-12 col-sm-8 col-lg-4">

@@ -15,6 +15,14 @@
                     <img class="img-fluid" src="{{ item.image.url }}">
                 </div>
                 <div class="col-12 col-sm mx-1">
+                    <p class="mb-2">Description:</p>
+                    <p class="p-2 border rounded">
+                        {% if item.description %}
+                            {{ item.description }}
+                        {% else %}
+                            <strong>No description set for the item.</strong>
+                        {% endif %}
+                    </p>
                     <p>Buyout price: <strong>{{ item.price }} €</strong></p>
                     <p>Top bid: <strong>{% if top_bid %}{{ top_bid.price }} €{% else %}No bids made.{% endif %}</strong></p>
                     {% if top_bid %}

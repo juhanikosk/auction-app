@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.core.validators import validate_email, ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, reverse
 from django.views.generic import View
@@ -44,6 +45,16 @@ class CreateUserView(View):
         username = request.POST.get('username')
         password = request.POST.get("password")
         context = {}
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.info(request, 'Enter a valid email address', 'danger')
+            return HttpResponseRedirect(reverse('create-user'))
+
+        if len(password) < 6:
+            messages.info(request, "Password needs to be minimum of 6 characters.", "danger")
+            return HttpResponseRedirect(reverse('create-user'))
 
         try:
             User.objects.create_user(

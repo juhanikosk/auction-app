@@ -10,6 +10,7 @@ class Item(models.Model):
         app_label="auction"
 
     name = models.CharField(blank=False, max_length=255, verbose_name="Name")
+    description = models.CharField(blank=True, max_length=2048, verbose_name="Description")
     price = models.IntegerField(blank=False, verbose_name="Price")
     image = models.FileField(blank=True, verbose_name="Image")
 
