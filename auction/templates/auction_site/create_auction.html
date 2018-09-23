@@ -3,20 +3,25 @@
 
 {% block main_content %}
     <div class="row mx-1 mt-2">
-        <div class="col-12 offset-sm-1 offset-lg-3 offset-xl-4 col-sm-10 col-lg-6 col-xl-4 px-0 bg-light rounded p-2 pt-3">
-            <h4 class="p-2 header-title text-primary">
-                <i class="fas fa-newspaper mr-2"></i>
-                Create a new auction
-            </h4>
-            <form action="" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% include "forms/form_fields.html" %}
-                <div class="form-group">
-                    <div class="col-12">
-                        <button class="btn btn-lg btn-success" type="submit">Submit</button>
-                    </div>
+        <div class="col-12 offset-sm-1 offset-lg-3 offset-xl-4 col-sm-10 col-lg-6 col-xl-4 px-0">
+            <div class="row px-0 bg-light rounded py-3 px-0">
+                <div class="col-12">
+                    <h4 class="p-2 header-title text-primary">
+                        <i class="fas fa-newspaper mr-2"></i>
+                        Create a new auction
+                    </h4>
+                    <hr class="mx-2">
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include "forms/form_fields.html" %}
+                        <div class="form-group">
+                            <div class="col-12">
+                                <button class="btn btn-lg btn-success" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 {% endblock main_content %}

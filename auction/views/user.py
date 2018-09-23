@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.views.generic import DetailView, UpdateView
@@ -15,6 +16,7 @@ class UserUpdateView(UpdateView):
         return AuctionUser.objects.filter(pk=self.request.user.pk)
 
     def get_success_url(self):
+        messages.success(self.request, "User information saved succesfully.")
         return reverse('user-detail-view', kwargs={'pk': self.request.user.pk})
 
 

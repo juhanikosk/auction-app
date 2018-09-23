@@ -3,28 +3,42 @@
 
 {% block main_content %}
     <div class="row mx-1 mt-2">
-        <div class="col-12 offset-sm-1 offset-lg-3 offset-xl-4 col-sm-10 col-lg-6 col-xl-4 px-0 bg-light rounded p-2 pt-3">
-            <h4 class="p-2 header-title text-primary">
-                <i class="fas fa-newspaper mr-2"></i>
-                User details
-            </h4>
-            <div class="px-2 py-1">
-                <strong>Username: </strong><span>{{ user.username }}</span>
-            </div>
-            <div class="px-2 py-1">
-                <strong>Email: </strong><span>{{ user.email }}</span>
-            </div>
-            <div class="px-2 py-1">
-                <strong>First name: </strong><span>{{ user.first_name }}</span>
-            </div>
-            <div class="px-2 py-1">
-                <strong>Last name: </strong><span>{{ user.last_name }}</span>
-            </div>
-            <div class="px-2 py-1">
-                <strong>Phone: </strong><span>{{ user.phone }}</span>
-            </div>
-            <div class="px-2 pt-3 pb-2">
-                <a class="btn btn-info" href="{% url 'user-edit-view' user.pk %}">Edit info</a>
+        <div class="col-12 offset-sm-1 offset-lg-3 offset-xl-4 col-sm-10 col-lg-6 col-xl-4 px-0">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="row">
+                        <div class="col-12 mt-2 px-0">
+                            <p class="bg-{{ message.tags }} p-3 rounded text-white">{{ message }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="row px-0 bg-light rounded py-3 px-0">
+                <div class="col-12">
+                    <h4 class="p-2 header-title text-primary">
+                        <i class="fas fa-newspaper mr-2"></i>
+                        User details
+                    </h4>
+                    <hr class="mx-2">
+                    <div class="px-2 py-1">
+                        <strong>Username: </strong><span>{{ user.username }}</span>
+                    </div>
+                    <div class="px-2 py-1">
+                        <strong>Email: </strong><span>{{ user.email }}</span>
+                    </div>
+                    <div class="px-2 py-1">
+                        <strong>First name: </strong><span>{{ user.first_name }}</span>
+                    </div>
+                    <div class="px-2 py-1">
+                        <strong>Last name: </strong><span>{{ user.last_name }}</span>
+                    </div>
+                    <div class="px-2 py-1">
+                        <strong>Phone: </strong><span>{{ user.phone }}</span>
+                    </div>
+                    <div class="px-2 pt-3 pb-2">
+                        <a class="btn btn-info" href="{% url 'user-edit-view' user.pk %}">Edit info</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
