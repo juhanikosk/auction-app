@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from django.core.validators import validate_email, ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, reverse
 from django.views.generic import View
+
+
+from auction.models import AuctionUser
 
 
 class LoginView(View):
@@ -57,7 +59,7 @@ class CreateUserView(View):
             return HttpResponseRedirect(reverse('create-user'))
 
         try:
-            User.objects.create_user(
+            AuctionUser.objects.create_user(
                 email=email,
                 username=username,
                 password=password

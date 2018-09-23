@@ -33,6 +33,8 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
 
+AUTH_USER_MODEL = 'auction.AuctionUser'
+
 # Application definition
 
 INSTALLED_APPS = [

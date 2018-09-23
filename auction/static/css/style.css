@@ -29,3 +29,7 @@
     height: 100%;
     z-index: 2;
 }
+
+.link-element-wrapper:hover {
+    background-color: rgba(124, 124, 124, 0.151)
+}

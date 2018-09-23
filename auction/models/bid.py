@@ -1,8 +1,7 @@
-from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import reverse
 
-from auction.models import Item
+from auction.models import AuctionUser, Item
 
 
 class Bid(models.Model):
@@ -12,7 +11,7 @@ class Bid(models.Model):
     class Meta:
         app_label="auction"
 
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="bids")
+    user = models.ForeignKey(to="auction.AuctionUser", on_delete=models.CASCADE, related_name="bids")
     auction = models.ForeignKey(to=Item, on_delete=models.CASCADE, related_name="bids")
     price = models.IntegerField(blank=False, verbose_name="Price")
 
