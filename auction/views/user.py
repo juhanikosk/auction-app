@@ -11,6 +11,9 @@ class UserUpdateView(UpdateView):
     template_name="user/edit_details.html"
     fields=['username', 'email', 'first_name', 'last_name', 'phone']
 
+    def get_queryset(self):
+        return AuctionUser.objects.filter(pk=self.request.user.pk)
+
     def get_success_url(self):
         return reverse('user-detail-view', kwargs={'pk': self.request.user.pk})
 
