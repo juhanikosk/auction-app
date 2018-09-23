@@ -22,6 +22,10 @@ class CreateAuctionView(CreateView):
     fields = ['name', 'description', 'price', 'image']
     template_name = "auction_site/create_auction.html"
 
+    def get_success_url(self):
+        messages.success(self.request, "Auction created succesfully.")
+        return reverse('auction-details', kwargs={'pk': self.object.pk})
+
 
 class AuctionDetailView(DetailView):
     model = Item
