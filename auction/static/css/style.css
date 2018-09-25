@@ -33,3 +33,11 @@
 .link-element-wrapper:hover {
     background-color: rgba(124, 124, 124, 0.151)
 }
+
+.table-wrapper-scroll-y {
+    display: block;
+    min-height: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+}

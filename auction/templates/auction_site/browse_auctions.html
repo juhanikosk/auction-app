@@ -1,0 +1,114 @@
+{% extends "main.html" %}
+
+{% block extra_js %}
+    <script type="text/javascript">
+        var currentResults = [];
+        getResults('');
+
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                var title = document.getElementById('title-search').value
+                var bid = document.getElementById('bid-search').value
+                var minBid = document.getElementById('min-bid-search').value
+
+                getResults(title);
+            }
+        });
+
+        function getResults(title) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (xhttp.status === 200 && xhttp.responseText.length) {
+                    var results = document.getElementById('results');
+                    while (results.firstChild) {
+                        results.removeChild(results.firstChild);
+                    }
+
+                    currentResults = JSON.parse(xhttp.responseText)['auctions'];
+                    if (currentResults.length) {
+                        currentResults.forEach(function(item) {
+                            var row = document.createElement("tr");
+                            var nameCell = document.createElement("td");
+                            var link = document.createElement('a');
+                            link.href = '/auction/' + item.id;
+                            link.appendChild(document.createTextNode(item.name));
+                            nameCell.appendChild(link);
+
+                            var priceCell = document.createElement("td");
+                            var price = document.createElement('p');
+                            price.appendChild(document.createTextNode(item.current_price + ' €'));
+                            priceCell.appendChild(price);
+
+                            var descCell = document.createElement("td");
+                            var desc = document.createElement('p');
+                            desc.appendChild(document.createTextNode(item.description));
+                            descCell.appendChild(desc);
+
+                            row.appendChild(nameCell);
+                            row.appendChild(priceCell);
+                            row.appendChild(descCell);
+                            results.appendChild(row);
+                        });
+                    } else {
+                        var pElement = document.createElement('p');
+                        pElement.classList.add('m-3');
+                        pElement.appendChild(document.createTextNode('No results found.'));
+                        results.appendChild(pElement);
+                    }
+                }
+            };
+
+            xhttp.open('GET', '{% url "auction-api" %}?title=' + title);
+            xhttp.send();
+        }
+    </script>
+{% endblock extra_js %}
+
+{% block main_content %}
+    <div class="row mx-sm-1 mt-2">
+        <div class="col-12 px-0">
+            <div class="row bg-white rounded mx-1 mb-2 p-2">
+                <div class="col-12">
+                    <h4 class="p-2 header-title text-primary">
+                        <i class="fas fa-newspaper mr-2"></i>
+                        Browse auctions
+                    </h4>
+                </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-sm-12 col-md mb-2">
+                            <input class="form-control" id="title-search" type="text" placeholder="Search by title..."/>
+                        </div>
+                        <div class="col-sm-12 col-md mb-2">
+                            <input class="form-control" id="bid-search" type="number" placeholder="Search by current bid..."/>
+                        </div>
+                        <div class="col-sm-12 col-md mb-2">
+                            <input class="form-control" id="min-bid-search" type="number" placeholder="Search by min. price..."/>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="table-wrapper-scroll-y border border-top-0 my-2">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Price</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="results">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}
