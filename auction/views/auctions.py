@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.forms import model_to_dict
+from django.forms import model_to_dict, Textarea
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.generic import View, DetailView
 from django.views.generic.edit import CreateView
@@ -22,6 +22,11 @@ class CreateAuctionView(CreateView):
     model = Item
     fields = ['name', 'description', 'price', 'image']
     template_name = "auction_site/create_auction.html"
+
+    def get_form(self):
+        form = super(CreateAuctionView, self).get_form()
+        form.fields['description'].widget = Textarea(attrs={'class': 'form-control', 'rows': 5})
+        return form
 
     def get_success_url(self):
         messages.success(self.request, "Auction created succesfully.")
@@ -48,7 +53,7 @@ class AuctionDetailView(DetailView):
                 messages.info(request, 'Invalid value for a bid.', 'danger')
                 return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
 
-            if top_bid is None or bid_amount > top_bid.price and bid_amount > self.get_object().price:
+            if top_bid is None and bid_amount > self.get_object().price or top_bid and bid_amount > top_bid.price:
                 new_bid = Bid(user=request.user, price=bid_amount, auction=self.get_object())
                 new_bid.save()
                 messages.success(request, 'Bid placed succesfully.')
@@ -63,23 +68,17 @@ class AuctionDetailView(DetailView):
 
 class AuctionAPI(View):
     def get(self, request, *args, **kwargs):
-        filter_args = {'name__icontains': request.GET.get('title', '')}
+        filter_args = {
+            'name__icontains': request.GET.get('title', ''),
+            'description__icontains': request.GET.get('desc', ''),
+        }
 
         if 'bid' in request.GET:
             try:
                 current_bid = int(request.GET.get('bid'))
+                filter_args['bids__price'] = current_bid
             except ValueError:
-                return HttpResponse('Invalid bid')
-
-            filter_args['bids__price'] = current_bid
-
-        if 'min_bid' in request.GET:
-            try:
-                current_bid = int(request.GET.get('min_bid'))
-            except ValueError:
-                return HttpResponse('Invalid bid')
-
-            filter_args['price'] = current_bid
+                pass
 
         response = Item.objects.filter(**filter_args)
         return JsonResponse({'auctions': [self.get_auction_dict(auct) for auct in response]})

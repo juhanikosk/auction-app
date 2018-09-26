@@ -3,19 +3,19 @@
 {% block extra_js %}
     <script type="text/javascript">
         var currentResults = [];
-        getResults('');
+        getResults('', '', '');
 
         document.addEventListener('keyup', function(e) {
             if (e.key === 'Enter') {
                 var title = document.getElementById('title-search').value
-                var bid = document.getElementById('bid-search').value
-                var minBid = document.getElementById('min-bid-search').value
+                var desc = document.getElementById('desc-search').value
+                var curBid = document.getElementById('current-bid-search').value
 
-                getResults(title);
+                getResults(title, desc, curBid);
             }
         });
 
-        function getResults(title) {
+        function getResults(title, desc, curBid) {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (xhttp.status === 200 && xhttp.responseText.length) {
@@ -58,7 +58,7 @@
                 }
             };
 
-            xhttp.open('GET', '{% url "auction-api" %}?title=' + title);
+            xhttp.open('GET', '{% url "auction-api" %}?title=' + title + "&desc=" + desc + "&bid=" + curBid);
             xhttp.send();
         }
     </script>
@@ -80,10 +80,10 @@
                             <input class="form-control" id="title-search" type="text" placeholder="Search by title..."/>
                         </div>
                         <div class="col-sm-12 col-md mb-2">
-                            <input class="form-control" id="bid-search" type="number" placeholder="Search by current bid..."/>
+                            <input class="form-control" id="desc-search" type="text" placeholder="Search by description..."/>
                         </div>
                         <div class="col-sm-12 col-md mb-2">
-                            <input class="form-control" id="min-bid-search" type="number" placeholder="Search by min. price..."/>
+                            <input class="form-control" id="current-bid-search" type="number" placeholder="Search by current bid..."/>
                         </div>
                     </div>
                 </div>

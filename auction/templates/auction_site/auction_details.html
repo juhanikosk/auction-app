@@ -3,7 +3,7 @@
 
 {% block main_content %}
     <div class="row my-2">
-        <div class="col-12 offset-sm-1 offset-lg-3 offset-xl-4 col-sm-10 col-lg-6 col-xl-4 px-0">
+        <div class="col-12 offset-sm-1 offset-lg-2 offset-xl-3 col-sm-10 col-lg-8 col-xl-6 px-0">
             <div class="row mx-1 bg-light rounded p-2 pt-3">
                 <h4 class="p-2 px-4 header-title text-primary">
                     {{ item.name }}
@@ -23,7 +23,7 @@
                             <strong>No description set for the item.</strong>
                         {% endif %}
                     </p>
-                    <p>Buyout price: <strong>{{ item.price }} €</strong></p>
+                    <p>Minimum bid: <strong>{{ item.price }} €</strong></p>
                     <p>Top bid: <strong>{% if top_bid %}{{ top_bid.price }} €{% else %}No bids made.{% endif %}</strong></p>
                     {% if top_bid %}
                         <p>Bid made by: <strong>{{ top_bid.user }}</strong></p>
