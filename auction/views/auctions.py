@@ -1,9 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.forms import model_to_dict, Textarea
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.views.generic import View, DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import render, reverse
 
 from auction.models import Item, NewsItem, Bid
@@ -30,7 +30,7 @@ class CreateAuctionView(CreateView):
 
     def get_success_url(self):
         messages.success(self.request, "Auction created succesfully.")
-        return reverse('auction-details', kwargs={'pk': self.object.pk})
+        return reverse('auction-confirm', kwargs={'pk': self.object.pk})
 
 
 class AuctionDetailView(DetailView):
@@ -91,10 +91,30 @@ class AuctionAPI(View):
             'name': auct.name,
             'current_price': price,
             'description': auct.description,
-            'image_url': auct.image.url
+            'image_url': auct.image.url if auct.image else '/static/img/lataus.png'
         }
 
 
 class AuctionSearchView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'auction_site/browse_auctions.html')
+
+
+class AuctionConfirmView(View):
+    template_name = 'auction_site/confirm.html'
+
+    def get(self, request, *args, **kwargs):
+        object_id = self.kwargs.get('pk')
+        try:
+            Item.pending_objects.get(pk=object_id)
+        except Item.DoesNotExist:
+            raise Http404()
+
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        object_id = self.kwargs.get('pk')
+        item = Item.pending_objects.get(pk=object_id)
+        item.pending = False
+        item.save()
+        return HttpResponseRedirect(reverse('auction-details', kwargs=kwargs))

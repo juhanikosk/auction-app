@@ -12,7 +12,11 @@
                     <hr class="m-0 mb-3">
                 </div>
                 <div class="col-12 col-sm px-4 pb-4 pb-sm-0">
-                    <img class="img-fluid" src="{{ item.image.url }}">
+                    {% if item.image %}
+                        <img class="img-fluid" src="{{ item.image.url }}">
+                    {% else %}
+                        <img class="img-fluid" src="{% static 'img/lataus.png' %}">
+                    {% endif %}
                 </div>
                 <div class="col-12 col-sm mx-1">
                     <p class="mb-2">Description:</p>

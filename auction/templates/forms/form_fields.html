@@ -7,3 +7,12 @@
         </div>
     </div>
 {% endfor %}
+{% if messages %}
+    <div class="row bg-danger rounded p-3 mx-3 mb-4">
+        {% for message in messages %}
+            <div class="col-12 text-white">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

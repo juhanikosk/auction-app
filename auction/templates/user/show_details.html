@@ -36,7 +36,8 @@
                         <strong>Phone: </strong><span>{{ user.phone }}</span>
                     </div>
                     <div class="px-2 pt-3 pb-2">
-                        <a class="btn btn-info" href="{% url 'user-edit-view' user.pk %}">Edit info</a>
+                        <a class="btn btn-info mr-2" href="{% url 'user-edit-view' user.pk %}">Edit info</a>
+                        <a class="btn btn-info" href="{% url 'user-edit-password' user.pk %}">Edit password</a>
                     </div>
                 </div>
             </div>

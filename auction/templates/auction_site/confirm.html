@@ -1,0 +1,24 @@
+{% extends "main.html" %}
+
+{% block main_content %}
+    <div class="row mt-0 mt-sm-4 p-1">
+        <div class="offset-sm-1 offset-lg-2 offset-xl-3 col-12 col-sm-10 col-lg-8 col-xl-6 bg-light rounded pt-2">
+            <h4 class="m-0 py-2 header-title text-primary px-1">
+                Confirm creation
+            </h4>
+            <hr class="mx-1 my-2">
+            <div class="col-12 p-1">
+                <p>Are you sure you want to create this new auction?</p>
+                <form action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="col-12 p-0">
+                            <button class="btn btn-success mr-2" type="submit">Create auction</button>
+                            <a class="btn btn-danger" href="{% url 'main-page' %}">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}

@@ -21,8 +21,8 @@ from django.contrib import admin
 from django.urls import path
 
 from auction.views.login import CreateUserView, LoginView, logout_user
-from auction.views.auctions import CreateAuctionView, IndexView, AuctionDetailView, AuctionAPI, AuctionSearchView
-from auction.views.user import UserDetailView, UserUpdateView
+from auction.views.auctions import CreateAuctionView, IndexView, AuctionDetailView, AuctionAPI, AuctionSearchView, AuctionConfirmView
+from auction.views.user import UserDetailView, UserUpdateView, UserPasswordView
 
 
 def login_wrap(view_class, template=None):
@@ -37,7 +37,9 @@ urlpatterns = [
     path('', login_wrap(IndexView), name="main-page"),
     path('create-auction/', login_wrap(CreateAuctionView), name="create-auction"),
     path('auction/<pk>/', login_wrap(AuctionDetailView), name="auction-details"),
+    path('auction/<pk>/confirm', login_wrap(AuctionConfirmView), name="auction-confirm"),
     path('user/<pk>/edit', login_wrap(UserUpdateView), name="user-edit-view"),
+    path('user/<pk>/edit/password', login_wrap(UserPasswordView), name="user-edit-password"),
     path('user/<pk>/', login_wrap(UserDetailView), name="user-detail-view"),
     path('auction/', login_wrap(AuctionAPI), name='auction-api'),
     path('browse/', login_wrap(AuctionSearchView), name='auction-search-view')
