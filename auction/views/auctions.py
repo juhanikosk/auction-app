@@ -1,3 +1,5 @@
+from decimal import Decimal, DecimalException
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.forms import model_to_dict, Textarea
@@ -17,6 +19,7 @@ class IndexView(View):
         }
 
         return render(request, "auction_site/landing_page.html", context)
+
 
 class CreateAuctionView(CreateView):
     model = Item
@@ -43,21 +46,22 @@ class AuctionDetailView(DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
+        threshold = 10000000.00
         bid_amount = request.POST.get('bid-sum')
         if bid_amount:
             top_bid = self.get_object().bids.order_by('price').last()
 
             try:
-                bid_amount = int(bid_amount)
-            except ValueError:
+                bid_amount = Decimal(bid_amount)
+            except DecimalException:
                 messages.info(request, 'Invalid value for a bid.', 'danger')
                 return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
 
-            if top_bid is None and bid_amount > self.get_object().price or top_bid and bid_amount > top_bid.price:
-                new_bid = Bid(user=request.user, price=bid_amount, auction=self.get_object())
+            if top_bid is None and bid_amount > self.get_object().price or top_bid and bid_amount > top_bid.price and bid_amount < threshold:
+                new_bid = Bid(user=request.user, price=bid_amount, auction=self.get_object(), pending=True)
                 new_bid.save()
                 messages.success(request, 'Bid placed succesfully.')
-                return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
+                return HttpResponseRedirect(reverse('bid-confirm', kwargs={'pk': new_bid.pk}))
             else:
                 messages.info(request, 'Place a higher bid than the current top bid.', 'danger')
                 return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
@@ -118,3 +122,23 @@ class AuctionConfirmView(View):
         item.pending = False
         item.save()
         return HttpResponseRedirect(reverse('auction-details', kwargs=kwargs))
+
+
+class BidConfirmView(View):
+    template_name = 'auction_site/confirm_bid.html'
+
+    def get(self, request, *args, **kwargs):
+        object_id = self.kwargs.get('pk')
+        try:
+            Bid.pending_objects.get(pk=object_id)
+        except Bid.DoesNotExist:
+            raise Http404()
+
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        object_id = self.kwargs.get('pk')
+        bid = Bid.pending_objects.get(pk=object_id)
+        bid.pending = False
+        bid.save()
+        return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': bid.auction.id}))

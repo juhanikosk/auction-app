@@ -21,7 +21,7 @@ class Item(models.Model):
 
     name = models.CharField(blank=False, max_length=255, verbose_name="Name")
     description = models.CharField(blank=True, max_length=2048, verbose_name="Description")
-    price = models.IntegerField(blank=False, verbose_name="Price")
+    price = models.DecimalField(blank=False, verbose_name="Price", max_digits=10, decimal_places=2)
     image = models.FileField(blank=True, null=True, verbose_name="Image")
     pending = models.BooleanField(verbose_name="Pending", default=True)
 

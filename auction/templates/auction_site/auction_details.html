@@ -40,7 +40,7 @@
                     {% csrf_token %}
                     <h4 class="p-2 header-title text-primary">Make a bid</h4>
                     <div class="col-12 form-inline mx-1 px-0">
-                        <input name="bid-sum" class="col-12 col-sm-9 form-control mr-2 mb-2 mb-sm-0" type="number" placeholder="Write the sum of the bid..." />
+                        <input name="bid-sum" class="col-12 col-sm-9 form-control mr-2 mb-2 mb-sm-0" type="number" placeholder="Write the sum of the bid..." step="0.01" />
                         <button class="col-12 col-sm btn btn-success" type="submit">Submit</button>
                     </div>
                 </form>
