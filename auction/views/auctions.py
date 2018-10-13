@@ -12,9 +12,13 @@ from auction.models import Item, NewsItem, Bid
 
 
 class IndexView(View):
+    """
+    The main page, which has the most recent auctions listed and also
+    news articles, if there are any.
+    """
     def get(self, request, *args, **kwargs):
         context = {
-            'items': Item.objects.all(),
+            'items': Item.objects.all()[:5],
             'news': NewsItem.objects.all()
         }
 
@@ -22,6 +26,9 @@ class IndexView(View):
 
 
 class CreateAuctionView(CreateView):
+    """
+    A view that is used to create a new auction in the system.
+    """
     model = Item
     fields = ['name', 'description', 'price', 'image']
     template_name = "auction_site/create_auction.html"
@@ -37,6 +44,10 @@ class CreateAuctionView(CreateView):
 
 
 class AuctionDetailView(DetailView):
+    """
+    The view that has information about the auction and the bidding
+    details. This is also used to bid on the current auction.
+    """
     model = Item
     template_name = "auction_site/auction_details.html"
 
@@ -71,6 +82,10 @@ class AuctionDetailView(DetailView):
 
 
 class AuctionAPI(View):
+    """
+    An API view that returns information about auctions that fit the
+    GET parameters of the request.
+    """
     def get(self, request, *args, **kwargs):
         filter_args = {
             'name__icontains': request.GET.get('title', ''),
@@ -88,23 +103,27 @@ class AuctionAPI(View):
         return JsonResponse({'auctions': [self.get_auction_dict(auct) for auct in response]})
 
     def get_auction_dict(self, auct):
-        bid_list = list(auct.bids.order_by('price'))
-        price = bid_list[-1].price if bid_list else auct.price
         return {
             'id': auct.id,
             'name': auct.name,
-            'current_price': price,
+            'current_price': auct.get_top_price,
             'description': auct.description,
             'image_url': auct.image.url if auct.image else '/static/img/lataus.png'
         }
 
 
 class AuctionSearchView(View):
+    """
+    A simple view to render the auction browsing view.
+    """
     def get(self, request, *args, **kwargs):
         return render(request, 'auction_site/browse_auctions.html')
 
 
 class AuctionConfirmView(View):
+    """
+    A view that transforms a pending auction into a real auction.
+    """
     template_name = 'auction_site/confirm.html'
 
     def get(self, request, *args, **kwargs):
@@ -125,6 +144,9 @@ class AuctionConfirmView(View):
 
 
 class BidConfirmView(View):
+    """
+    A view that transforms a pending bid into a real bid.
+    """
     template_name = 'auction_site/confirm_bid.html'
 
     def get(self, request, *args, **kwargs):

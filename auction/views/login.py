@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.password_validation import validate_password
 from django.core.validators import validate_email, ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, reverse
@@ -10,6 +11,10 @@ from auction.models import AuctionUser
 
 
 class LoginView(View):
+    """
+    A view that is used to validate the user and log the user in, if
+    his/hers credentials are correct.
+    """
     def get(self, request, *args, **kwargs):
         return render(request, "login/login.html")
 
@@ -39,6 +44,11 @@ class LoginView(View):
 
 
 class CreateUserView(View):
+    """
+    A view that is used to create a new user and validate the data
+    given from the user creation form. If the user is succesfully
+    created, the user will be redirected to the login page.
+    """
     def get(self, request, *args, **kwargs):
         return render(request, "login/create_user.html")
 
@@ -60,8 +70,12 @@ class CreateUserView(View):
             messages.info(request, "Enter a valid first name and last name.", "danger")
             return HttpResponseRedirect(reverse('create-user'))
 
-        if len(password) < 6:
-            messages.info(request, "Password needs to be minimum of 6 characters.", "danger")
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            for error in e:
+                messages.info(request, error, "danger")
+
             return HttpResponseRedirect(reverse('create-user'))
 
         try:
@@ -83,6 +97,11 @@ class CreateUserView(View):
         messages.success(request, 'User created.')
         return HttpResponseRedirect(reverse('login'))
 
+
 def logout_user(request, *args, **kwargs):
+    """
+    Simple view function that logs out the user and redirects him/her
+    to the login page.
+    """
     logout(request)
     return HttpResponseRedirect(reverse('login'))

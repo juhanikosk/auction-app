@@ -30,3 +30,10 @@ class Item(models.Model):
 
     def get_absolute_url(self):
         return reverse('main-page')
+
+    @property
+    def get_top_price(self):
+        if self.bids.count():
+            return self.bids.all().order_by('-price')[0].price
+        else:
+            return self.price

@@ -10,6 +10,10 @@ from auction.models import AuctionUser
 
 
 class UserUpdateView(UpdateView):
+    """
+    A view that is used to update the user's information. All of the
+    fields are also validated correctly.
+    """
     model=AuctionUser
     template_name="user/edit_details.html"
     fields=['username', 'email', 'first_name', 'last_name', 'phone']
@@ -23,17 +27,21 @@ class UserUpdateView(UpdateView):
 
 
 class UserDetailView(DetailView):
+    """
+    Simple view that lists all of the user's information.
+    """
     model=AuctionUser
     template_name="user/show_details.html"
 
 
 class UserPasswordView(FormView):
+    """
+    A view used to change the user's password. The same validation for
+    the password is used, as in the user creation view.
+    """
     model=AuctionUser
     template_name="user/edit_details.html"
     form_class=PasswordChangeForm
-
-    def get_success_url(self):
-        return reverse('main-page')
 
     def get_form(self):
         form = PasswordChangeForm(self.request.user)
@@ -44,7 +52,11 @@ class UserPasswordView(FormView):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
+            messages.success(request, 'Password changed successfully.')
+            return HttpResponseRedirect(reverse('user-detail-view', kwargs={'pk': request.user.pk}))
         else:
-            messages.info(request, form.errors, 'danger')
+            for value in form.errors.values():
+                for error in value:
+                    messages.info(request, error, 'danger')
 
         return super(UserPasswordView, self).post(request, *args, **kwargs)
