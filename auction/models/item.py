@@ -1,15 +1,9 @@
 from django.db import models
 from django.shortcuts import reverse
 
+from django.utils.timezone import now
 
-class ItemManager(models.Manager):
-    def get_queryset(self):
-        return super(ItemManager, self).get_queryset().filter(pending=False)
-
-
-class ItemPendingManager(models.Manager):
-    def get_queryset(self):
-        return super(ItemPendingManager, self).get_queryset().filter(pending=True)
+from auction.models import AuctionUser
 
 
 class Item(models.Model):
@@ -24,9 +18,8 @@ class Item(models.Model):
     price = models.DecimalField(blank=False, verbose_name="Price", max_digits=10, decimal_places=2)
     image = models.FileField(blank=True, null=True, verbose_name="Image")
     pending = models.BooleanField(verbose_name="Pending", default=True)
-
-    objects = ItemManager()
-    pending_objects = ItemPendingManager()
+    creator = models.ForeignKey(AuctionUser, on_delete=models.CASCADE, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self):
         return reverse('main-page')

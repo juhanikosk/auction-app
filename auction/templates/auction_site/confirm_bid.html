@@ -10,8 +10,9 @@
             <hr class="mx-1 my-2">
             <div class="col-12 p-1">
                 <p>Are you sure you want to add this new bid?</p>
-                <form action="" method="POST" enctype="multipart/form-data">
+                <form action="{% url 'bid-confirm' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
+                    {% include "forms/form_fields.html" %}
                     <div class="form-group">
                         <div class="col-12 p-0">
                             <button class="btn btn-success mr-2" type="submit">Make a bid</button>

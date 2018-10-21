@@ -1,12 +1,19 @@
 {% for field in form %}
-    <div class="form-group">
-        <label class="control-label h5 col-12">{{ field.label_tag }}</label>
-        <div class="col-12">{{ field }}</div>
-        <div class="col-10 mt-2">
-            <span class="text-danger small">{{ field.errors }}</span>
+    {% if not hidden_form %}
+        <div class="form-group">
+            <label class="control-label h5 col-12">{{ field.label_tag }}</label>
+            <div class="col-12">{{ field }}</div>
+            <div class="col-10 mt-2">
+                <span class="text-danger small">{{ field.errors }}</span>
+            </div>
         </div>
-    </div>
+    {% else %}
+        {{ field }}
+    {% endif %}
 {% endfor %}
+{% if confirm_message %}
+    <div class="col-12 mb-4">{{ confirm_message }}</div>
+{% endif %}
 {% if messages %}
     <div class="row bg-danger rounded p-3 mx-3 mb-4">
         {% for message in messages %}

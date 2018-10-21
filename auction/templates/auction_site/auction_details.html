@@ -27,6 +27,7 @@
                             <strong>No description set for the item.</strong>
                         {% endif %}
                     </p>
+                    <p>Created by: <strong>{{ item.creator }}</strong></p>
                     <p>Minimum bid: <strong>{{ item.price }} €</strong></p>
                     <p>Top bid: <strong>{% if top_bid %}{{ top_bid.price }} €{% else %}No bids made.{% endif %}</strong></p>
                     {% if top_bid %}
@@ -36,14 +37,21 @@
                 <div class="col-12">
                     <hr>
                 </div>
-                <form class="col-12" method="POST" action="">
-                    {% csrf_token %}
-                    <h4 class="p-2 header-title text-primary">Make a bid</h4>
-                    <div class="col-12 form-inline mx-1 px-0">
-                        <input name="bid-sum" class="col-12 col-sm-9 form-control mr-2 mb-2 mb-sm-0" type="number" placeholder="Write the sum of the bid..." step="0.01" />
-                        <button class="col-12 col-sm btn btn-success" type="submit">Submit</button>
+                {% if request.user.is_authenticated and request.user.pk != item.creator.pk %}
+                    <form class="col-12" method="POST" action="">
+                        {% csrf_token %}
+                        <h4 class="p-2 header-title text-primary">Make a bid</h4>
+                        <div class="col-12 form-inline mx-1 px-0">
+                            <input name="bid-sum" class="col-12 col-sm-9 form-control mr-2 mb-2 mb-sm-0" type="number" placeholder="Write the sum of the bid..." step="0.01" />
+                            <button class="col-12 col-sm btn btn-success" type="submit">Submit</button>
+                        </div>
+                    </form>
+                {% elif request.user.pk == item.creator.pk %}
+                    <div class="col-12">
+                        <a class="mb-2 float-left col-12 col-sm-5 btn btn-success" href="">Edit auction</a>
+                        <a class="mb-2 float-right col-12 col-sm-5 btn btn-danger" href="">Remove auction</a>
                     </div>
-                </form>
+                {% endif %}
                 {% if messages %}
                     {% for message in messages %}
                         <div class="col-12">

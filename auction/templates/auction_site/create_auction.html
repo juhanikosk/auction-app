@@ -11,12 +11,15 @@
                         Create a new auction
                     </h4>
                     <hr class="mx-2">
-                    <form action="" method="POST" enctype="multipart/form-data">
+                    <form action="{% if confirm_url %}{{ confirm_url }}{% endif %}" method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% include "forms/form_fields.html" %}
                         <div class="form-group">
                             <div class="col-12">
-                                <button class="btn btn-lg btn-success" type="submit">Submit</button>
+                                <button class="btn btn-lg btn-success" type="submit">{% if confirm_url %}Confirm{% else %}Submit{% endif %}</button>
+                                {% if confirm_url %}
+                                    <a href="{% url 'main-page' %}" class="btn btn-lg btn-danger">Cancel</a>
+                                {% endif %}
                             </div>
                         </div>
                     </form>
