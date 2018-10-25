@@ -3,6 +3,11 @@
         <div class="form-group">
             <label class="control-label h5 col-12">{{ field.label_tag }}</label>
             <div class="col-12">{{ field }}</div>
+            {% if field.help_text %}
+            <div class="col-12 mt-2">
+                <small>{{ field.help_text }}</small>
+            </div>
+            {% endif %}
             <div class="col-10 mt-2">
                 <span class="text-danger small">{{ field.errors }}</span>
             </div>

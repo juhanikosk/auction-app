@@ -21,7 +21,11 @@ from django.contrib import admin
 from django.urls import path
 
 from auction.views.login import CreateUserView, LoginView, logout_user
-from auction.views.auctions import CreateAuctionView, IndexView, AuctionDetailView, AuctionAPI, AuctionSearchView, AuctionConfirmView, BidConfirmView
+from auction.views.auctions import (
+    CreateAuctionView, IndexView, AuctionDetailView, AuctionAPI,
+    AuctionSearchView, AuctionConfirmView, BidConfirmView,
+    AuctionUpdateView, AuctionBanView, BannedListView
+)
 from auction.views.user import UserDetailView, UserUpdateView, UserPasswordView
 
 
@@ -37,11 +41,14 @@ urlpatterns = [
     path('', IndexView.as_view(), name="main-page"),
     path('create-auction/', login_wrap(CreateAuctionView), name="create-auction"),
     path('auction/<pk>/', AuctionDetailView.as_view(), name="auction-details"),
+    path('auction/<pk>/edit', login_wrap(AuctionUpdateView), name="auction-desc-edit"),
+    path('auction/<pk>/ban', login_wrap(AuctionBanView), name="auction-ban"),
     path('auction/confirm', login_wrap(AuctionConfirmView), name="auction-confirm"),
     path('bid/confirm', login_wrap(BidConfirmView), name="bid-confirm"),
     path('user/<pk>/edit', login_wrap(UserUpdateView), name="user-edit-view"),
     path('user/<pk>/edit/password', login_wrap(UserPasswordView), name="user-edit-password"),
     path('user/<pk>/', login_wrap(UserDetailView), name="user-detail-view"),
     path('auction/', AuctionAPI.as_view(), name='auction-api'),
-    path('browse/', AuctionSearchView.as_view(), name='auction-search-view')
+    path('browse/', AuctionSearchView.as_view(), name='auction-search-view'),
+    path('banned/', login_wrap(BannedListView), name="banned-auctions")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

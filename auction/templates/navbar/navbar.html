@@ -20,6 +20,9 @@
             </ul>
             <div class="my-2 my-lg-0">
                 {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                        <a href="{% url 'banned-auctions' %}" class="btn btn-danger my-2 mr-2 mr-lg-3 my-lg-0 my-sm-0">Banned auctions</a>
+                    {% endif %}
                     <a href="{% url 'user-detail-view' request.user.pk %}" class="btn btn-info my-2 mr-2 mr-lg-3 my-lg-0 my-sm-0">Profile</a>
                     <a href="{% url 'logout' %}" class="btn btn-danger my-2 my-lg-0 my-sm-0">Logout</a>
                 {% else %}

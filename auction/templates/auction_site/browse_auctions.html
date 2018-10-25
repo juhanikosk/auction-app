@@ -29,6 +29,10 @@
                     currentResults = JSON.parse(xhttp.responseText)['auctions'];
                     if (currentResults.length) {
                         currentResults.forEach(function(item) {
+                            if (item.status === 'BN') {
+                                return;
+                            }
+
                             var row = document.createElement("tr");
                             var nameCell = document.createElement("td");
                             var link = document.createElement('a');

@@ -1,13 +1,18 @@
 {% extends "main.html" %}
-{% load static %}
+{% load static tz %}
 
 {% block main_content %}
     <div class="row my-2">
         <div class="col-12 offset-sm-1 offset-lg-2 offset-xl-3 col-sm-10 col-lg-8 col-xl-6 px-0">
             <div class="row mx-1 bg-light rounded p-2 pt-3">
-                <h4 class="p-2 px-4 header-title text-primary">
-                    {{ item.name }}
-                </h4>
+                <div class="col">
+                    {% if item.status == 'BN' %}
+                        <p class="text-white bg-danger rounded p-2 float-right">Banned</p>
+                    {% endif %}
+                    <h4 class="p-2 px-4 header-title text-primary">
+                        {{ item.name }}
+                    </h4>
+                </div>
                 <div class="col-12">
                     <hr class="m-0 mb-3">
                 </div>
@@ -33,11 +38,14 @@
                     {% if top_bid %}
                         <p>Bid made by: <strong>{{ top_bid.user }}</strong></p>
                     {% endif %}
+                    {% timezone "Europe/Helsinki" %}
+                        <p>Expires: <strong>{{ item.deadline|date:"D d.m.Y H:i" }}</strong></p>
+                    {% endtimezone %}
                 </div>
                 <div class="col-12">
                     <hr>
                 </div>
-                {% if request.user.is_authenticated and request.user.pk != item.creator.pk %}
+                {% if request.user.is_authenticated and request.user.pk != item.creator.pk and item.status != 'BN' %}
                     <form class="col-12" method="POST" action="">
                         {% csrf_token %}
                         <h4 class="p-2 header-title text-primary">Make a bid</h4>
@@ -48,9 +56,19 @@
                     </form>
                 {% elif request.user.pk == item.creator.pk %}
                     <div class="col-12">
-                        <a class="mb-2 float-left col-12 col-sm-5 btn btn-success" href="">Edit auction</a>
-                        <a class="mb-2 float-right col-12 col-sm-5 btn btn-danger" href="">Remove auction</a>
+                        <a class="mb-2 col-12 btn btn-success" href="{% url 'auction-desc-edit' item.pk %}">Edit description</a>
                     </div>
+                {% endif %}
+                {% if request.user.is_superuser %}
+                    {% if item.status != 'BN' %}
+                        <div class="col-12">
+                            <a class="mb-2 col-12 btn btn-danger" href="{% url 'auction-ban' item.pk %}">Ban auction</a>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <a class="mb-2 col-12 btn btn-info" href="{% url 'auction-ban' item.pk %}">Unban auction</a>
+                        </div>
+                    {% endif %}
                 {% endif %}
                 {% if messages %}
                     {% for message in messages %}

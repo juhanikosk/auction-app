@@ -1,0 +1,35 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block main_content %}
+    <div class="row mx-1 mt-2">
+        <div class="col-12 offset-sm-1 offset-lg-2 offset-xl-3 col-sm-10 col-lg-8 col-xl-6 px-0">
+            <div class="row px-0 bg-light rounded py-3 px-0">
+                <div class="col-12">
+                    <h4 class="p-2 header-title text-primary">
+                        Banned auctions
+                    </h4>
+                    <hr class="mx-2">
+                    {% if object_list %}
+                        {% for auction in object_list %}
+                            <div class="row mx-1">
+                                <div class="col-4 mt-1">
+                                    <img class="img-fluid" src="{% if auction.image %}{{ auction.image.url }}{% else %}{% static 'img/lataus.png' %}{% endif %}">
+                                </div>
+                                <div class="col-8">
+                                    <a class="btn btn-success float-right" href="{% url 'auction-ban' auction.pk %}">Unban</a>
+                                    <strong>{{ auction.name }}</strong>
+                                    <p class="my-0">{{ auction.description }}</p>
+                                    <p>{{ auction.price }}</p>
+                                </div>
+                            </div>
+                            <hr class="mx-2">
+                        {% endfor %}
+                    {% else %}
+                        <p class="mx-2">No banned auctions found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}

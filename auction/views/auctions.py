@@ -1,15 +1,18 @@
+from datetime import timedelta
 from decimal import Decimal, DecimalException, InvalidOperation
 
 from django.core import mail
+from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.forms import model_to_dict, Textarea, HiddenInput
+from django.forms import model_to_dict, Textarea, HiddenInput, IntegerField
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect, JsonResponse, Http404
-from django.views.generic import View, DetailView
+from django.views.generic import View, DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import render, reverse
+from django.utils.timezone import now
 
 from auction.forms.bid import BidForm
 from auction.models import AuctionUser, Item, NewsItem, Bid
@@ -22,7 +25,7 @@ class IndexView(View):
     """
     def get(self, request, *args, **kwargs):
         context = {
-            'items': Item.objects.all().order_by('-created')[:5],
+            'items': Item.objects.filter(status='AC').order_by('-created')[:5],
             'news': NewsItem.objects.all()
         }
 
@@ -34,12 +37,14 @@ class CreateAuctionView(CreateView):
     A view that is used to create a new auction in the system.
     """
     model = Item
-    fields = ['name', 'description', 'price', 'image']
+    fields = ['name', 'description', 'price', 'deadline', 'image']
     template_name = "auction_site/create_auction.html"
 
     def get_form(self):
         form = super(CreateAuctionView, self).get_form()
         form.fields['description'].widget = Textarea(attrs={'class': 'form-control', 'rows': 5})
+        form.fields['deadline'] = IntegerField(max_value=336, min_value=72)
+        form.fields['deadline'].help_text = "Deadline in hours from now. Needs to be a number between 72 and 336."
         return form
 
     def post(self, request, *args, **kwargs):
@@ -49,7 +54,7 @@ class CreateAuctionView(CreateView):
 
         if request.FILES:
             imageFile = request.FILES.get('image')
-            fs = FileSystemStorage(settings.MEDIA_ROOT)
+            fs = FileSystemStorage()
             filename = fs.save(imageFile.name, imageFile)
             form.fields['image'].widget.attrs['value'] = filename
 
@@ -80,37 +85,25 @@ class AuctionDetailView(DetailView):
         if not request.user.is_authenticated:
             return HttpResponseForbidden("Access denied")
 
-        bid_amount = request.POST.get('bid-sum')
+        bid_amount = float(request.POST.get('bid-sum'))
         if bid_amount:
             top_bid = self.get_object().bids.order_by('price').last()
 
-            try:
-                bid_amount = Decimal(bid_amount).quantize(Decimal('0.01'))
-            except (DecimalException, InvalidOperation):
-                messages.info(request, 'Invalid value for a bid.', 'danger')
-                return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
-
-            threshold = 99999999
-
-            if bid_amount > threshold:
-                messages.info(request, 'Bid exceeds the price threshold.', 'danger')
-                return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
-
-            if top_bid is None and bid_amount > self.get_object().price or top_bid and bid_amount > top_bid.price:
-                data = {
-                    'user': request.user,
-                    'price': bid_amount,
-                    'auction': self.get_object()
-                }
-
-                form = BidForm(data=data)
-                for field in form.fields.values():
-                    field.widget = HiddenInput()
-
-                return render(request, "auction_site/confirm_bid.html", {'form': form, 'hidden_form': True})
-            else:
+            if not top_bid and bid_amount < self.get_object().price or top_bid and bid_amount < top_bid.price:
                 messages.info(request, 'Place a higher bid than the current top bid.', 'danger')
                 return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
+
+            data = {
+                'user': request.user,
+                'price': bid_amount,
+                'auction': self.get_object()
+            }
+
+            form = BidForm(data=data)
+            for field in form.fields.values():
+                field.widget = HiddenInput()
+
+            return render(request, "auction_site/confirm_bid.html", {'form': form, 'hidden_form': True})
         else:
             messages.info(request, 'Invalid bid.', 'danger')
             return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': self.get_object().pk}))
@@ -129,7 +122,7 @@ class AuctionAPI(View):
 
         if 'bid' in request.GET:
             try:
-                current_bid = int(request.GET.get('bid'))
+                current_bid = float(request.GET.get('bid'))
                 filter_args['bids__price'] = current_bid
             except ValueError:
                 pass
@@ -143,7 +136,8 @@ class AuctionAPI(View):
             'name': auct.name,
             'current_price': auct.get_top_price,
             'description': auct.description,
-            'image_url': auct.image.url if auct.image else '/static/img/lataus.png'
+            'image_url': auct.image.url if auct.image else '/static/img/lataus.png',
+            'status': auct.status
         }
 
 
@@ -167,7 +161,20 @@ class AuctionConfirmView(View):
     def post(self, request, *args, **kwargs):
         item = Item()
         for key, value in request.POST.items():
-            setattr(item, key, value)
+            if key == 'deadline':
+                try:
+                    hours = int(value)
+                except ValueError:
+                    messages.info(request, 'Invalid deadline.', 'danger')
+                    return HttpResponseRedirect(reverse('create-auction'))
+
+                if (hours < 72 or hours > 336):
+                    messages.info(request, 'Invalid deadline.', 'danger')
+                    return HttpResponseRedirect(reverse('create-auction'))
+
+                item.deadline = now() + timedelta(hours=hours)
+            else:
+                setattr(item, key, value)
 
         item.creator = request.user
         item.save()
@@ -178,7 +185,7 @@ class AuctionConfirmView(View):
 
 class BidConfirmView(View):
     """
-    A view that transforms a pending bid into a real bid.
+    A view that is used to confirm a bid.
     """
     template_name = 'auction_site/confirm_bid.html'
 
@@ -186,14 +193,106 @@ class BidConfirmView(View):
         raise Http404()
 
     def post(self, request, *args, **kwargs):
+        auction = Item.objects.get(pk=request.POST.get('auction'))
+        if auction.status != 'AC':
+            messages.info(request, "The auction is not active.", 'danger')
+            return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': auction.pk})) 
+
+        if request.user == auction.creator:
+            messages.info(request, "Sellers can't bid their own auctions.", 'danger')
+            return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': auction.pk})) 
+
         bid = Bid()
         bid.user = request.user
-        bid.auction = Item.objects.get(pk=request.POST.get('auction'))
+        bid.auction = auction
+        bid_amount = float(request.POST.get('price'))
 
-        price = float(request.POST.get('price'))
-        bid.price = Decimal(price).quantize(Decimal('0.01'))
+        try:
+            bid_amount = Decimal(bid_amount).quantize(Decimal('0.01'))
+        except (DecimalException, InvalidOperation):
+            messages.info(request, 'Invalid value for a bid.', 'danger')
+            return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': auction.pk}))
+
+        top_bid = auction.bids.order_by('price').last()
+
+        if top_bid is None and bid_amount > auction.price or top_bid and bid_amount > top_bid.price:
+            bid.price = bid_amount
+        else:
+            messages.info(request, 'Place a higher bid than the current top bid.', 'danger')
+            return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': auction.pk}))
 
         bid.save()
 
+        mail.send_mail("A new bid has been placed.", "A new greater bid has been succesfully placed!", 'juhkoski@abo.fi', [auction.creator])
+        mail.send_mail("A new bid has been placed.", "A new greater bid has been succesfully placed!", 'juhkoski@abo.fi', [auction.creator])
         messages.success(request, 'Bid placed succesfully.')
         return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': bid.auction.id}))
+
+
+class AuctionUpdateView(UpdateView):
+    model=Item
+    fields=["description"]
+    template_name="auction_site/standard_form.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(creator=self.request.user)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(AuctionUpdateView, self).get_context_data(*args, **kwargs)
+        context['title'] = "Update description"
+        return context
+
+    def get_form(self, *args, **kwargs):
+        form = super(AuctionUpdateView, self).get_form(*args, **kwargs)
+        form.fields['description'].widget = Textarea(attrs={'class': 'form-control', 'rows': 5})
+        return form
+
+    def get_success_url(self):
+        messages.success(self.request, "Description update succesfully.")
+        return reverse('auction-details', kwargs={'pk': self.get_object().pk})
+
+
+class AuctionBanView(View):
+    """
+    A view that is used by admins to ban auctions.
+    """
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404()
+
+        auction_id = kwargs['pk']
+        try:
+            obj = Item.objects.get(pk=auction_id)
+        except Item.DoesNotExist:
+            raise Http404()
+
+        if obj.status == 'DU' or obj.status == "AD":
+            raise Http404()
+
+        if obj.status == 'BN':
+            obj.status = 'AC'  # AC is the status for active.
+            obj.save()
+            messages.info(request, 'Auction #{} was unbanned.'.format(obj.pk), "success")
+            return HttpResponseRedirect(reverse('main-page'))
+
+        obj.status = 'BN'  # BN is the status for banned.
+        obj.save()
+        messages.info(request, 'Auction #{} was banned.'.format(obj.pk), "danger")
+        return HttpResponseRedirect(reverse('main-page'))
+
+
+class BannedListView(ListView):
+    template_name="auction_site/banned_list.html"
+    model=Item
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404()
+        else:
+            return super(BannedListView, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = super(BannedListView, self).get_queryset()
+        qs = qs.filter(status="BN")
+        return qs

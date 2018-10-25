@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block main_content %}
+    <div class="row mx-1 mt-2">
+        <div class="col-12 offset-sm-1 offset-lg-2 offset-xl-3 col-sm-10 col-lg-8 col-xl-6 px-0">
+            <div class="row px-0 bg-light rounded py-3 px-0">
+                <div class="col-12">
+                    <h4 class="p-2 header-title text-primary">
+                        {{ title }}
+                    </h4>
+                    <hr class="mx-2">
+                    <form action="{% if confirm_url %}{{ confirm_url }}{% endif %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include "forms/form_fields.html" %}
+                        <div class="form-group">
+                            <div class="col-12">
+                                <button class="btn btn-lg btn-success" type="submit">{% if confirm_url %}Confirm{% else %}Submit{% endif %}</button>
+                                {% if confirm_url %}
+                                    <a href="{% url 'main-page' %}" class="btn btn-lg btn-danger">Cancel</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}
