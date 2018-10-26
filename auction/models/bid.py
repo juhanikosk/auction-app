@@ -13,7 +13,7 @@ class Bid(models.Model):
 
     user = models.ForeignKey(to="auction.AuctionUser", on_delete=models.CASCADE, related_name="bids")
     auction = models.ForeignKey(to=Item, on_delete=models.CASCADE, related_name="bids")
-    price = models.DecimalField(blank=False, verbose_name="Price", max_digits=10, decimal_places=2)
+    price = models.FloatField(blank=False, verbose_name="Price")
 
     def get_absolute_url(self):
         return reverse('main-page')

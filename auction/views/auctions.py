@@ -112,13 +112,20 @@ class AuctionDetailView(DetailView):
 class AuctionAPI(View):
     """
     An API view that returns information about auctions that fit the
-    GET parameters of the request.
+    GET parameters of the request. If the GET request contains an id
+    parameter, the auction with that id is returned.
     """
     def get(self, request, *args, **kwargs):
         filter_args = {
             'name__icontains': request.GET.get('title', ''),
             'description__icontains': request.GET.get('desc', ''),
         }
+
+        if request.GET.get('id'):
+            try:
+                filter_args['id'] = int(request.GET.get('id'))
+            except ValueError:
+                pass
 
         if 'bid' in request.GET:
             try:
@@ -151,7 +158,8 @@ class AuctionSearchView(View):
 
 class AuctionConfirmView(View):
     """
-    A view that transforms a pending auction into a real auction.
+    A view that transforms auction form data to an instance of the
+    Item model in the database.
     """
     template_name = 'auction_site/confirm.html'
 
@@ -224,7 +232,9 @@ class BidConfirmView(View):
         bid.save()
 
         mail.send_mail("A new bid has been placed.", "A new greater bid has been succesfully placed!", 'juhkoski@abo.fi', [auction.creator])
-        mail.send_mail("A new bid has been placed.", "A new greater bid has been succesfully placed!", 'juhkoski@abo.fi', [auction.creator])
+
+        if top_bid.user:
+            mail.send_mail("Your bid has been replaced.", "Your bid has beend replaced by a higher bid!", 'juhkoski@abo.fi', [top_bid.user])
         messages.success(request, 'Bid placed succesfully.')
         return HttpResponseRedirect(reverse('auction-details', kwargs={'pk': bid.auction.id}))
 
@@ -295,4 +305,15 @@ class BannedListView(ListView):
     def get_queryset(self):
         qs = super(BannedListView, self).get_queryset()
         qs = qs.filter(status="BN")
+        return qs
+
+
+class AuctionListView(ListView):
+    template_name="auction_site/auction_list.html"
+    model=Item
+
+    def get_queryset(self):
+        param = self.request.GET.get('search-param', '')
+        qs = super(AuctionListView, self).get_queryset()
+        qs = qs.filter(status="AC", name__icontains=param)
         return qs

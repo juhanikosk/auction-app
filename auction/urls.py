@@ -24,8 +24,10 @@ from auction.views.login import CreateUserView, LoginView, logout_user
 from auction.views.auctions import (
     CreateAuctionView, IndexView, AuctionDetailView, AuctionAPI,
     AuctionSearchView, AuctionConfirmView, BidConfirmView,
-    AuctionUpdateView, AuctionBanView, BannedListView
+    AuctionUpdateView, AuctionBanView, BannedListView,
+    AuctionListView
 )
+from auction.views.email import EmailListView
 from auction.views.user import UserDetailView, UserUpdateView, UserPasswordView
 
 
@@ -49,6 +51,8 @@ urlpatterns = [
     path('user/<pk>/edit/password', login_wrap(UserPasswordView), name="user-edit-password"),
     path('user/<pk>/', login_wrap(UserDetailView), name="user-detail-view"),
     path('auction/', AuctionAPI.as_view(), name='auction-api'),
+    path('auction-list/', AuctionListView.as_view(), name='auction-list'),
     path('browse/', AuctionSearchView.as_view(), name='auction-search-view'),
-    path('banned/', login_wrap(BannedListView), name="banned-auctions")
+    path('banned/', login_wrap(BannedListView), name="banned-auctions"),
+    path('emailhistory/', EmailListView.as_view(), name="email-list-view")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

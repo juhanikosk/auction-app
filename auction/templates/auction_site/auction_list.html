@@ -7,7 +7,7 @@
             <div class="row px-0 bg-light rounded py-3 px-0">
                 <div class="col-12">
                     <h4 class="p-2 header-title text-primary">
-                        Banned auctions
+                        Auctions
                     </h4>
                     <hr class="mx-2">
                     {% if object_list %}
@@ -17,16 +17,18 @@
                                     <img class="img-fluid" src="{% if auction.image %}{{ auction.image.url }}{% else %}{% static 'img/lataus.png' %}{% endif %}">
                                 </div>
                                 <div class="col-8">
-                                    <a class="btn btn-success float-right" href="{% url 'auction-ban' auction.pk %}">Unban</a>
-                                    <strong>{{ auction.name }}</strong>
-                                    <p class="my-0">{{ auction.description }}</p>
-                                    <p>{{ auction.price|floatformat:2 }} €</p>
+                                    <a class="h5 text-bold" href="{% url 'auction-details' auction.pk %}">
+                                        <strong>{{ auction.name }}</strong>
+                                    </a>
+                                    <p class="my-0">Description: <strong>{{ auction.description }}</strong></p>
+                                    <p class="my-0">Current price: <strong>{{ auction.price|floatformat:2 }} €</strong></p>
+                                    <p>Created by: <strong>{{ auction.creator }}</strong></p>
                                 </div>
                             </div>
                             <hr class="mx-2">
                         {% endfor %}
                     {% else %}
-                        <p class="mx-2">No banned auctions found</p>
+                        <p class="mx-2">No active auctions found</p>
                     {% endif %}
                 </div>
             </div>

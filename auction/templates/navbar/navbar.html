@@ -18,6 +18,9 @@
                     </li>
                 {% endif %}
             </ul>
+            <form class="my-2 mr-4" method="GET" action="{% url 'auction-list' %}">
+                <input name="search-param" type="text" class="form-control" placeholder="Search for auction...">
+            </form>
             <div class="my-2 my-lg-0">
                 {% if request.user.is_authenticated %}
                     {% if request.user.is_superuser %}
